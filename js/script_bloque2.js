@@ -85,7 +85,7 @@ function calculateTotalPrice() {
     convertAndValidateText();
 
     let total = 0.0;
-
+    //* Cálculo de noches
     let noches = Math.max(0, diesNumber - 1);
     let alojamiento = noches * preuNitNumber;
 
@@ -94,20 +94,19 @@ function calculateTotalPrice() {
         throw new Error("El nombre de díes no laborables no es vàlid.");
     }
 
+    //* Coste total
     let diasLaborables = diesNumber - diasNoLaborables;
-
     let despesaDiariaTotal = diasLaborables * despesaLaborableNumber + diasNoLaborables * despesaCapSetmanaNumber;
-
     total = transportNumber + alojamiento + despesaDiariaTotal;
 
+    //* Saldo disponible y media por día
     let saldoDisponible = pressupostNumber - total;
-
     let mitjanaPerDia = total / diesNumber;
 
+    //* Insuficient/Ajustado/Suficiente
     let resultado = "";
-
     if (saldoDisponible < 0) {
-        resultado = "Insuficient";
+        resultado = "Insuficiente";
     }
     else if (saldoDisponible < pressupostNumber * 0.2) {
         resultado = "Ajustado";
