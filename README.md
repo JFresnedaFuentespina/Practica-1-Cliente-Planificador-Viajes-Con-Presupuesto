@@ -2,6 +2,8 @@
 ## Bloc 1 - UT1: arquitectura, llenguatges i eines
 1. Preparau el projecte amb fitxers HTML, CSS i JavaScript separats. Executau-lo amb un servidor local HTTP i explicau com posar-lo en marxa.
 
+Nosaltres posam en marxa el seridor mitjançant l'extensió de VS Code: LiveShare.
+
 2. Explicau el paper d’HTML, CSS i JavaScript. Justificau per què JavaScript és adequat per fer càlculs i interactuar amb el navegador. Diferenciau JavaScript de TypeScript: el navegador executa JavaScript; TypeScript necessita transformació.
 
 * HTML: És l'esquelet de la pàgina web. Defineix qu+e hi ha a la pantalla. No té estils ni lògica.
