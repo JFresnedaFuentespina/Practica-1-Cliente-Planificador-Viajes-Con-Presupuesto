@@ -127,4 +127,40 @@ function calculateTotalPrice() {
 
 }
 
+function generarDetallePorDia() {
+    const detalle = [];
+    let acumulado = 0;
+    const diasLaborables = diesNumber - diasNoLaborables;
+
+    for (let dia = 1; dia <= diesNumber; dia++) {
+        const transporteDia = (dia === 1) ? transportNumber : 0;
+        const alojamientoDia = (dia < diesNumber) ? preuNitNumber : 0;
+        const esFinSemana = dia > diasLaborables;
+        const gastoDia = esFinSemana ? despesaCapSetmanaNumber : despesaLaborableNumber;
+        const costeDia = transporteDia + alojamientoDia + gastoDia;
+        acumulado += costeDia;
+
+        detalle.push({ dia, transporteDia, alojamientoDia, gastoDia, costeDia, acumulado });
+
+        console.log(
+            `Día ${dia}: transporte ${transporteDia} € | alojamiento ${alojamientoDia} € | ` +
+            `gasto ${gastoDia} € | coste ${costeDia} € | acumulado ${acumulado} €`
+        );
+    }
+
+    return detalle;
+}
+
+function comprobarDetalle(detalle, costeTotal) {
+    const sumaDetalle = detalle[detalle.length - 1].acumulado;
+    console.log(`Suma del detalle: ${sumaDetalle} € Coste total: ${costeTotal} € ¿Coincide?: ${sumaDetalle === costeTotal}`);
+    return sumaDetalle === costeTotal;
+}
+
+const resumen = calculateTotalPrice();
+console.log(resumen);
+
+const detalle = generarDetallePorDia();
+comprobarDetalle(detalle, resumen.total);
+
 console.log(calculateTotalPrice());
