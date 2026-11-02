@@ -1,16 +1,229 @@
-<!DOCTYPE html>
-<html lang="en">
 
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script defer src="../js/script.js"></script>
-    <script defer src="../js/script_bloque2.js"></script>
-    <title>Document</title>
+    <title>Planificador de viajes</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/script.js" defer></script>
+    <script src="../js/script_bloque2.js" defer></script>
+    <script src="../js/script_bloque3.js" defer></script>
 </head>
-
 <body>
 
-</body>
+    <header class="header">
+        <h1>Planificador de viajes</h1>
+        <p>Organiza tu viaje y controla tu presupuesto.</p>
+    </header>
 
+    <main class="container">
+
+        <section class="card">
+            <h2>Datos del viaje</h2>
+
+            <form id="formViaje">
+
+                <div class="form-group">
+                    <label for="nombre">Nombre del viaje</label>
+                    <input
+                        type="text"
+                        id="nombre"
+                        name="nombre"
+                        placeholder="Ej. Viaje a Madrid"
+                        required
+                    >
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="fechaSalida">Fecha de salida</label>
+                        <input
+                            type="date"
+                            id="fechaSalida"
+                            name="fechaSalida"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fechaVuelta">Fecha de vuelta</label>
+                        <input
+                            type="date"
+                            id="fechaVuelta"
+                            name="fechaVuelta"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="presupuesto">Presupuesto (€)</label>
+                        <input
+                            type="number"
+                            id="presupuesto"
+                            name="presupuesto"
+                            min="0"
+                            step="0.01"
+                            placeholder="500"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transporte">Coste del transporte (€)</label>
+                        <input
+                            type="number"
+                            id="transporte"
+                            name="transporte"
+                            min="0"
+                            step="0.01"
+                            placeholder="120"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="precioNoche">Precio por noche (€)</label>
+                        <input
+                            type="number"
+                            id="precioNoche"
+                            name="precioNoche"
+                            min="0"
+                            step="0.01"
+                            placeholder="65"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gastoLaborable">Gasto diario laborable (€)</label>
+                        <input
+                            type="number"
+                            id="gastoLaborable"
+                            name="gastoLaborable"
+                            min="0"
+                            step="0.01"
+                            placeholder="30"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gastoFinSemana">Gasto diario fin de semana (€)</label>
+                        <input
+                            type="number"
+                            id="gastoFinSemana"
+                            name="gastoFinSemana"
+                            min="0"
+                            step="0.01"
+                            placeholder="45"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+                <div class="actions">
+                    <button type="submit" id="btnCalcular" class="btn primary">
+                        Calcular
+                    </button>
+
+                    <button type="button" id="btnGuardar" class="btn success">
+                        Guardar
+                    </button>
+
+                    <button type="button" id="btnRecuperar" class="btn secondary">
+                        Recuperar
+                    </button>
+
+                    <button type="button" id="btnBorrar" class="btn danger">
+                        Esborrar desat
+                    </button>
+
+                    <button type="button" id="btnResumen" class="btn dark">
+                        Obrir resum
+                    </button>
+                </div>
+
+            </form>
+
+            <p id="mensaje" class="message" role="status" aria-live="polite"></p>
+        </section>
+
+        <section id="resultado" class="results" hidden>
+
+            <h2>Resumen del viaje</h2>
+
+            <div class="summary-grid">
+
+                <article class="summary-card">
+                    <span>Duración</span>
+                    <strong id="totalDias">0 días</strong>
+                </article>
+
+                <article class="summary-card">
+                    <span>Noches</span>
+                    <strong id="totalNoches">0</strong>
+                </article>
+
+                <article class="summary-card">
+                    <span>Presupuesto</span>
+                    <strong id="totalPresupuesto">0 €</strong>
+                </article>
+
+                <article class="summary-card">
+                    <span>Coste total</span>
+                    <strong id="totalCoste">0 €</strong>
+                </article>
+
+                <article class="summary-card">
+                    <span>Saldo disponible</span>
+                    <strong id="totalSaldo">0 €</strong>
+                </article>
+
+                <article class="summary-card">
+                    <span>Media por día</span>
+                    <strong id="mediaDia">0 €</strong>
+                </article>
+
+            </div>
+
+            <div id="estadoPresupuesto" class="budget-status">
+                <h3>Estado del presupuesto</h3>
+                <p id="textoEstado">Pendiente de calcular</p>
+            </div>
+
+            <h2>Detalle del viaje</h2>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Día</th>
+                            <th>Fecha</th>
+                            <th>Tipo de día</th>
+                            <th>Transporte</th>
+                            <th>Alojamiento</th>
+                            <th>Gasto diario</th>
+                            <th>Coste del día</th>
+                            <th>Acumulado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tablaDetalle">
+                        <!-- Las filas se generarán mediante JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p>Planificador de viajes - Práctica 1 - Cliente</p>
+    </footer>
+
+</body>
 </html>

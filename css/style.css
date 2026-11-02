@@ -1,0 +1,283 @@
+/* Configuración general */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f3f5f8;
+    color: #273043;
+    line-height: 1.6;
+}
+
+/* Cabecera */
+
+.header {
+    background-color: #273043;
+    color: #FCFFEB;
+    text-align: center;
+    padding: 35px 20px;
+}
+
+.header h1 {
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+/* Contenedor principal */
+
+.container {
+    width: 90%;
+    max-width: 1100px;
+    margin: 35px auto;
+}
+
+/* Tarjetas */
+
+.card,
+.results {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+}
+
+h2 {
+    margin-bottom: 22px;
+    color: #273043;
+}
+
+/* Formulario */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+.form-group input {
+    padding: 12px;
+    border: 1px solid #ccd2da;
+    border-radius: 6px;
+    font-size: 15px;
+    width: 100%;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #109678;
+    box-shadow: 0 0 0 2px rgba(16, 150, 120, 0.15);
+}
+
+/* Botones */
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn {
+    border: none;
+    padding: 11px 18px;
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn:hover {
+    opacity: 0.85;
+}
+
+.primary {
+    background-color: #109678;
+}
+
+.success {
+    background-color: #568259;
+}
+
+.secondary {
+    background-color: #64748b;
+}
+
+.danger {
+    background-color: #c0392b;
+}
+
+.dark {
+    background-color: #273043;
+}
+
+/* Mensajes */
+
+.message {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.message.error {
+    color: #c0392b;
+}
+
+.message.success-message {
+    color: #568259;
+}
+
+/* Resumen */
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.summary-card {
+    background-color: #f3f5f8;
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-card span {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.summary-card strong {
+    font-size: 22px;
+    margin-top: 5px;
+}
+
+/* Estado del presupuesto */
+
+.budget-status {
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border-left: 5px solid #64748b;
+    background-color: #f3f5f8;
+}
+
+.budget-status h3 {
+    margin-bottom: 5px;
+}
+
+.budget-status.suficiente {
+    border-left-color: #568259;
+    background-color: #e8f5e9;
+}
+
+.budget-status.ajustado {
+    border-left-color: #e0a52b;
+    background-color: #fff5dc;
+}
+
+.budget-status.insuficiente {
+    border-left-color: #c0392b;
+    background-color: #fdecea;
+}
+
+/* Tabla de detalle */
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 750px;
+}
+
+thead {
+    background-color: #273043;
+    color: white;
+}
+
+th,
+td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #e1e5eb;
+    white-space: nowrap;
+}
+
+tbody tr:hover {
+    background-color: #f3f5f8;
+}
+
+tbody tr.fin-semana {
+    background-color: #fff5dc;
+}
+
+/* Pie de página */
+
+.footer {
+    text-align: center;
+    padding: 25px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* Diseño adaptable */
+
+@media (max-width: 768px) {
+
+    .container {
+        width: 95%;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .card,
+    .results {
+        padding: 20px;
+    }
+
+    .header h1 {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 450px) {
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
