@@ -60,3 +60,26 @@ Començau amb dades escrites al JavaScript i sortida per consola. Encara no nece
 5. Documentau una depuració: **problema**, **hipòtesi**, **pausa** o **inspecció de valors**, **correcció** i **resultat**. Pot ser un error propi o un error introduït expressament i identificat com a tal.
 
 Control del cas inicial UT2: 4 dies, 3 nits, allotjament 195 €, despesa diària 120 €, transport 120 €, cost total 435 €, saldo 65 €, mitjana 108,75 € i estat Suficient. Acumulats diaris: 215 €, 310 €, 405 € i 435 €.
+
+## Bloc 3 - UT3: dates, navegador i persistència
+
+1. Afegiu camps per al nom del viatge, data de sortida, data de tornada, pressupost, transport, preu per nit, despesa laborable i despesa de cap de setmana. El nom ha de tenir contingut després d’eliminar els espais dels extrems.
+
+2. Amb Date, calculau els dies incloent els dos extrems i identificau dissabte i diumenge. Rebutjau dates buides, invàlides, tornada anterior a la sortida o durades superiors a 30 dies. Un viatge que comença i acaba el mateix dia té un dia i zero nits.
+
+3. Substituïu les dades fixes de UT2 per les del formulari i la seqüència de dates. Cada fila del detall ha de mostrar la data, el tipus de dia i els imports. No afegiu un selector manual del tipus de dia: s’ha de deduir de la data.
+
+4. Mostrau el resum i el detall a la pàgina. Diferenciau visualment els tres estats del pressupost i escriviu també el nom de l’estat. Si les dades són invàlides, mostrau un error comprensible i no presenteu un resultat anterior com si correspongués a les dades noves.
+
+5. Afegiu les accions Calcular, Guardar, Recuperar, Esborrar el desat i Obrir resum. Guardau només una planificació vàlida amb JSON i localStorage. En recuperar-la, ompliu els camps, validau i recalculau; no confieu només en totals guardats.
+
+6. Comprovau que es pot recuperar després de recarregar. Informau quan no hi ha dades, quan el contingut desat és invàlid o quan no es pot accedir a l’emmagatzematge. Esborrau només la clau de la vostra aplicació.
+
+7. Des d’un clic a Obrir resum, mostrau el darrer càlcul vàlid en una segona finestra o pestanya, amb nom, dates, resum i detall. Si l’obertura és bloquejada, informau l’usuari. No obriu finestres automàticament en carregar.
+
+8. Identificau al document els usos de Date, document, window, JSON i localStorage. Explicau què resol cada un en el vostre projecte.
+Atenció a les dates: comptau dies de calendari, no hores locals transcorregudes. El canvi d’hora no ha de crear un dia de més o de menys. Podeu usar una representació UTC coherent per fer els càlculs i recórrer les dates.
+
+El resum ha d’identificar el càlcul que mostra. Si es modifiquen els camps, cal recalcular abans de guardar o obrir el resum. Repetir Calcular amb les mateixes dades no ha de duplicar files ni acumular imports anteriors.
+
+Lliurable UT3: funcionalitats de navegador integrades i registre de proves de dates, pàgina, persistència i segona finestra. La finestra o pestanya pot ser la que decideixi el navegador.
