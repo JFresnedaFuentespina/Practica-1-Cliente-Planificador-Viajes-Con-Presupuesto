@@ -9,24 +9,47 @@ function readFormData(){
     const fechaVuelta = document.getElementById('fechaVuelta').value;
 
     if (fechaSalida === "" || fechaVuelta === "") {
+        showError("Las fechas son obligatorias.");
         throw new Error("Las fechas son obligatorias.");
     }
 
     base.fechaSalida = validateDate(new Date(fechaSalida));
     base.fechaVuelta = validateDate(new Date(fechaVuelta));
 
-    base.presupuesto = document.getElementById('presupuesto').value;
-    base.transporte = document.getElementById('transporte').value;
-    base.precioNoche = document.getElementById('precioNoche').value;
-    base.gastoLaborable = document.getElementById('gastoLaborable').value;
-    base.gastoFinSemana = document.getElementById('gastoFinSemana').value;
-    
+    base.presupuesto = validateNumber(document.getElementById('presupuesto').value, "Presupuesto");
+    base.transporte = validateNumber(document.getElementById('transporte').value, "Transporte");
+    base.precioNoche = validateNumber(document.getElementById('precioNoche').value, "Precio por noche");
+    base.gastoLaborable = validateNumber(document.getElementById('gastoLaborable').value, "Gasto laborable");
+    base.gastoFinSemana = validateNumber(document.getElementById('gastoFinSemana').value, "Gasto fin de semana");
+
     return base;
+}
+
+function validateNumber(value, fieldName = "Campo") {
+    if(value.trim() === "") {
+        showError(`El ${fieldName} no puede estar vacío.`);
+        throw new Error(`El ${fieldName} no puede estar vacío.`);
+    }
+
+    const numero = Number(value);
+
+    if(!Number.isFinite(numero)){
+        showError(`El ${fieldName} debe ser un número válido.`);
+        throw new Error(`El ${fieldName} debe ser un número válido.`);
+    }
+
+    if(numero < 0) {
+        showError(`El ${fieldName} no puede ser negativo.`);
+        throw new Error(`El ${fieldName} no puede ser negativo.`);
+    }
+
+    return numero;
 }
 
 //* Valida los datos del formulario
 function validateFormData(data){
     if(data.nombre.trim() === "" || typeof data.nombre !== "string"){
+        showError("El nombre no puede estar vacío y debe ser una cadena de texto.");
         throw new Error("El nombre no puede estar vacío y debe ser una cadena de texto.");
     }
 }
@@ -78,11 +101,11 @@ function calculateDaysBetweenDates(startDate, endDate){
 
 //* Calcula el coste total del viaje y actualiza la interfaz con los resultados.
 function calcularViaje(daysInfo, viajeInfo){
-    const presupuesto = Number(viajeInfo.presupuesto);
-    const transporte = Number(viajeInfo.transporte);
-    const precioNoche = Number(viajeInfo.precioNoche);
-    const gastoLaborable = Number(viajeInfo.gastoLaborable);
-    const gastoFinSemana = Number(viajeInfo.gastoFinSemana);
+    const presupuesto = viajeInfo.presupuesto;
+    const transporte = viajeInfo.transporte;
+    const precioNoche = viajeInfo.precioNoche;
+    const gastoLaborable = viajeInfo.gastoLaborable;
+    const gastoFinSemana = viajeInfo.gastoFinSemana;
 
     const laborables = daysInfo.days - daysInfo.saturdayCount - daysInfo.sundayCount;
 
@@ -106,14 +129,22 @@ function calcularViaje(daysInfo, viajeInfo){
     document.getElementById('mediaDia').textContent = `${mediaDiaria.toFixed(2)} €`;
     
     const textoEstado = document.getElementById('textoEstado');
-    if (saldo >= 0) {
-        textoEstado.textContent = "El viaje está dentro del presupuesto.";
-    } else {
+    if (saldo < 0) {
         textoEstado.textContent = "El viaje supera el presupuesto.";
+    } 
+    else if (costeTotal >= presupuesto * 0.8) {
+        textoEstado.textContent = "Presupuesto ajustado.";
+    }
+    else {
+        textoEstado.textContent = "El viaje está dentro del presupuesto.";
     }
 
     generarTablaDetalle(daysInfo, viajeInfo);
-}   
+}
+
+function showError(message){
+    alert(message);
+}
 
 //* Genera la tabla de detalle del viaje, mostrando los costes diarios y el acumulado.
 function generarTablaDetalle(daysInfo, viajeInfo) {
@@ -122,10 +153,10 @@ function generarTablaDetalle(daysInfo, viajeInfo) {
 
     tabla.innerHTML = '';
 
-    const precioNoche = Number(viajeInfo.precioNoche);
-    const transporte = Number(viajeInfo.transporte);
-    const gastoLaborable = Number(viajeInfo.gastoLaborable);
-    const gastoFinSemana = Number(viajeInfo.gastoFinSemana);
+    const precioNoche = viajeInfo.precioNoche;
+    const transporte = viajeInfo.transporte;
+    const gastoLaborable = viajeInfo.gastoLaborable;
+    const gastoFinSemana = viajeInfo.gastoFinSemana;
 
     const currentDate = toUTCDate(viajeInfo.fechaSalida);
 
