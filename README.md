@@ -83,3 +83,51 @@ Atenció a les dates: comptau dies de calendari, no hores locals transcorregudes
 El resum ha d’identificar el càlcul que mostra. Si es modifiquen els camps, cal recalcular abans de guardar o obrir el resum. Repetir Calcular amb les mateixes dades no ha de duplicar files ni acumular imports anteriors.
 
 Lliurable UT3: funcionalitats de navegador integrades i registre de proves de dates, pàgina, persistència i segona finestra. La finestra o pestanya pot ser la que decideixi el navegador.
+
+
+
+### Bloc 2 punt 5
+### Depuració (error introduït expressament)
+
+Per practicar la depuració hem introduït **expressament** un error a `generarDetallePorDia()` (`js/script_bloque2.js`). Hem canviat la condició de l'allotjament:
+
+```javascript
+// Versió amb l'error introduït
+const alojamientoDia = (dia <= diesNumber) ? preuNitNumber : 0;
+```
+
+**Problema:** a la consola, l'acumulat del darrer dia era 500 € però el cost total era 435 €. `comprobarDetalle()` mostrava `¿Coincide?: false`.
+
+**Hipòtesi:** la diferència és exactament de 65 €, que és el preu d'una nit. Pensam que el detall cobra allotjament també el darrer dia, quan no s'hi dorm.
+
+**Pausa i inspecció de valors:** a *Sources* hem posat un punt d'interrupció a la línia de `alojamientoDia` i hem avançat dia a dia. Hem inspeccionat `dia`, `diesNumber` i `alojamientoDia`:
+
+| dia | diesNumber | alojamientoDia |
+|---|---|---|
+| 1 | 4 | 65 |
+| 2 | 4 | 65 |
+| 3 | 4 | 65 |
+| 4 | 4 | **65** ← hauria de ser 0 |
+
+Amb `dia = 4` la condició `4 <= 4` és certa i es cobra una nit de més.
+
+**Correcció:** canviam `<=` per `<`. Així el darrer dia no té nit:
+
+```javascript
+// El darrer dia no es dorm fora: no hi ha allotjament
+const alojamientoDia = (dia < diesNumber) ? preuNitNumber : 0;
+```
+
+**Resultat:** els acumulats tornen a ser 215 €, 310 €, 405 € i 435 €. La suma del detall coincideix amb el cost total (`¿Coincide?: true`), igual que el cas de control.
+
+
+### Bloc 3 punt 8
+### Usos de Date, document, window, JSON i localStorage
+
+| Objecte | On l'usam | Què resol |
+|---|---|---|
+| `Date` | `calculateDaysBetweenDates()` i `generarTablaDetalle()`. També `new Date()` en calcular, per saber quan s'ha fet el càlcul. | Converteix les dates del formulari en dates que podem comparar. Calcula quants dies dura el viatge (incloent-hi la sortida i la tornada), detecta si cada dia és dissabte o diumenge (`getUTCDay()`) i avança d'un dia en un dia. Al resum mostra l'hora del càlcul. |
+| `document` | `getElementById()`, `textContent`, `createElement()`, `appendChild()`, `innerHTML` i `addEventListener()` | És el DOM, el pont entre el JavaScript i la pàgina. Permet llegir i omplir els camps, pintar el resum i la taula de detall sense recarregar, mostrar missatges i reaccionar als clics dels botons. |
+| `window` | `window.open('', '_blank')` al botó *Obrir resum* | Obre una segona pestanya o finestra amb el darrer càlcul vàlid. Si el navegador la bloqueja, `window.open` retorna `null` i ho comunicam a l'usuari. Només s'obre amb un clic, mai en carregar la pàgina. |
+| `JSON` | `JSON.stringify()` a *Guardar* i `JSON.parse()` a *Recuperar* | `localStorage` només desa text. `stringify` converteix l'objecte amb els camps en text i `parse` el torna a convertir en objecte. Si el text desat està malmès, `parse` llança un error que capturam amb `try/catch` per avisar que el contingut no és vàlid. |
+| `localStorage` | `setItem()`, `getItem()` i `removeItem()` amb la clau `planificadorViajes.planificacion` | Guarda la planificació al navegador perquè es pugui recuperar després de recarregar o tancar la pàgina. Desam només els camps, no els totals: en recuperar, tornam a validar i recalcular. Esborram només la nostra clau (`removeItem`, mai `clear()`), i totes les crides van dins `try/catch` per si el navegador no hi deixa accedir. |
