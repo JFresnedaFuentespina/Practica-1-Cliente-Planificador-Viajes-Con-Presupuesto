@@ -1,4 +1,3 @@
-
 //* Lee los datos del forumario y los devuelve en un objeto
 function readFormData(){
     const base = {};
@@ -238,3 +237,240 @@ btnCalcular.addEventListener('click', (event) => {
     const daysInfo = calculateDaysBetweenDates(data.fechaSalida, data.fechaVuelta);
     calcularViaje(daysInfo, data);
 });
+
+const CLAVE_STORAGE = 'planificadorViajes.planificacion';
+const CAMPOS = [
+    'nombre', 'fechaSalida', 'fechaVuelta', 'presupuesto',
+    'transporte', 'precioNoche', 'gastoLaborable', 'gastoFinSemana'
+];
+
+let ultimoCalculo = null;
+let datosModificados = false;
+let contadorCalculos = 0;
+
+const formViaje = document.getElementById('formViaje');
+const seccionResultado = document.getElementById('resultado');
+
+function mostrarMensaje(texto, tipo) {
+    const mensaje = document.getElementById('mensaje');
+    mensaje.textContent = texto;
+    mensaje.classList.remove('error', 'success-message');
+    if (tipo === 'error') mensaje.classList.add('error');
+    if (tipo === 'ok') mensaje.classList.add('success-message');
+}
+
+formViaje.addEventListener('click', (event) => {
+    if (event.target !== btnCalcular) return;
+    seccionResultado.hidden = true;
+    document.getElementById('tablaDetalle').innerHTML = '';
+    mostrarMensaje('', '');
+}, true);
+
+formViaje.addEventListener('click', (event) => {
+    if (event.target !== btnCalcular) return;
+
+    if (seccionResultado.hidden) {
+        ultimoCalculo = null;
+        mostrarMensaje('Los datos no son válidos. Revisa el formulario y vuelve a calcular.', 'error');
+        return;
+    }
+
+    contadorCalculos++;
+    ultimoCalculo = crearInstantanea();
+    datosModificados = false;
+    mostrarMensaje(`Cálculo nº ${ultimoCalculo.numero} realizado correctamente.`, 'ok');
+});
+
+function crearInstantanea() {
+    const campos = {};
+    for (const id of CAMPOS) {
+        campos[id] = document.getElementById(id).value;
+    }
+
+    const texto = (id) => document.getElementById(id).textContent;
+
+    const filas = [];
+    document.querySelectorAll('#tablaDetalle tr').forEach(tr => {
+        const celdas = [];
+        tr.querySelectorAll('td').forEach(td => celdas.push(td.textContent));
+        filas.push(celdas);
+    });
+
+    return {
+        numero: contadorCalculos,
+        hechoEl: new Date(),             
+        campos,
+        resumen: {
+            dias: texto('totalDias'),
+            noches: texto('totalNoches'),
+            presupuesto: texto('totalPresupuesto'),
+            coste: texto('totalCoste'),
+            saldo: texto('totalSaldo'),
+            media: texto('mediaDia'),
+            estado: texto('textoEstado')
+        },
+        filas
+    };
+}
+
+formViaje.addEventListener('input', () => {
+    datosModificados = true;
+});
+
+//* Guardar y Obrir resum solo funcionan con un cálculo válido y al día.
+function hayCalculoVigente() {
+    if (ultimoCalculo === null) {
+        mostrarMensaje('Primero tienes que calcular una planificación válida.', 'error');
+        return false;
+    }
+    if (datosModificados) {
+        mostrarMensaje('Has modificado los datos. Pulsa Calcular antes de continuar.', 'error');
+        return false;
+    }
+    return true;
+}
+
+document.getElementById('btnGuardar').addEventListener('click', () => {
+    if (!hayCalculoVigente()) return;
+
+    const paquete = {
+        version: 1,
+        guardadoEl: new Date().toISOString(),
+        campos: ultimoCalculo.campos
+    };
+
+    try {
+        localStorage.setItem(CLAVE_STORAGE, JSON.stringify(paquete));
+        mostrarMensaje(`Planificación "${ultimoCalculo.campos.nombre.trim()}" guardada.`, 'ok');
+    }
+    catch (error) {
+        mostrarMensaje('No se puede acceder al almacenamiento del navegador. No se ha guardado.', 'error');
+    }
+});
+
+document.getElementById('btnRecuperar').addEventListener('click', () => {
+    let texto;
+    try {
+        texto = localStorage.getItem(CLAVE_STORAGE);
+    }
+    catch (error) {
+        mostrarMensaje('No se puede acceder al almacenamiento del navegador.', 'error');
+        return;
+    }
+
+    if (texto === null) {
+        mostrarMensaje('No hay ninguna planificación guardada.', '');
+        return;
+    }
+
+    let paquete;
+    try {
+        paquete = JSON.parse(texto);
+    }
+    catch (error) {
+        mostrarMensaje('El contenido guardado está dañado (no es JSON válido). Puedes borrarlo con "Esborrar desat".', 'error');
+        return;
+    }
+
+    if (!esPaqueteValido(paquete)) {
+        mostrarMensaje('El contenido guardado no tiene el formato esperado. Puedes borrarlo con "Esborrar desat".', 'error');
+        return;
+    }
+
+    for (const id of CAMPOS) {
+        document.getElementById(id).value = paquete.campos[id];
+    }
+
+    //* Validamos y recalculamos
+    btnCalcular.click();
+
+    if (ultimoCalculo === null) {
+        mostrarMensaje('El contenido guardado no es válido: no supera la validación.', 'error');
+    } else {
+        mostrarMensaje(`Planificación "${paquete.campos.nombre.trim()}" recuperada y recalculada (cálculo nº ${ultimoCalculo.numero}).`, 'ok');
+    }
+});
+
+//* Comprueba que el objeto tiene la forma que nosotros guardamos.
+function esPaqueteValido(paquete) {
+    if (typeof paquete !== 'object' || paquete === null) return false;
+    if (typeof paquete.campos !== 'object' || paquete.campos === null) return false;
+    return CAMPOS.every(id => typeof paquete.campos[id] === 'string');
+}
+
+document.getElementById('btnBorrar').addEventListener('click', () => {
+    try {
+        if (localStorage.getItem(CLAVE_STORAGE) === null) {
+            mostrarMensaje('No había ninguna planificación guardada.', '');
+            return;
+        }
+        localStorage.removeItem(CLAVE_STORAGE);
+        mostrarMensaje('Planificación guardada eliminada.', 'ok');
+    }
+    catch (error) {
+        mostrarMensaje('No se puede acceder al almacenamiento del navegador.', 'error');
+    }
+});
+
+document.getElementById('btnResumen').addEventListener('click', () => {
+    if (!hayCalculoVigente()) return;
+
+    const ventana = window.open('', '_blank');
+
+    //* Si el navegador bloquea la ventana, window.open devuelve null
+    if (ventana === null) {
+        mostrarMensaje('El navegador ha bloqueado la ventana del resumen. Permite las ventanas emergentes y vuelve a intentarlo.', 'error');
+        return;
+    }
+
+    pintarResumen(ventana.document, ultimoCalculo);
+    mostrarMensaje(`Resumen del cálculo nº ${ultimoCalculo.numero} abierto en otra pestaña.`, 'ok');
+});
+
+//* Construye la página dentro del document de la ventana nueva.
+function pintarResumen(doc, calculo) {
+    const c = calculo.campos;
+    const r = calculo.resumen;
+
+    const añadir = (padre, etiqueta, texto) => {
+        const el = doc.createElement(etiqueta);
+        if (texto !== undefined) el.textContent = texto;
+        padre.appendChild(el);
+        return el;
+    };
+
+    const fecha = (iso) => new Date(iso).toLocaleDateString('es-ES', { timeZone: 'UTC' });
+
+    doc.title = `Resumen - ${c.nombre.trim()}`;
+    doc.body.style.fontFamily = 'Arial, sans-serif';
+    doc.body.style.margin = '30px';
+
+    añadir(doc.body, 'h1', c.nombre.trim());
+    añadir(doc.body, 'p', `Cálculo nº ${calculo.numero}, hecho el ${calculo.hechoEl.toLocaleString('es-ES')}`);
+    añadir(doc.body, 'p', `Del ${fecha(c.fechaSalida)} al ${fecha(c.fechaVuelta)}`);
+
+    añadir(doc.body, 'h2', 'Resumen');
+    const lista = añadir(doc.body, 'ul');
+    añadir(lista, 'li', `Días: ${r.dias}`);
+    añadir(lista, 'li', `Noches: ${r.noches}`);
+    añadir(lista, 'li', `Presupuesto: ${r.presupuesto}`);
+    añadir(lista, 'li', `Coste total: ${r.coste}`);
+    añadir(lista, 'li', `Saldo disponible: ${r.saldo}`);
+    añadir(lista, 'li', `Media por día: ${r.media}`);
+    añadir(lista, 'li', `Estado: ${r.estado}`);
+
+    añadir(doc.body, 'h2', 'Detalle');
+    const tabla = añadir(doc.body, 'table');
+    tabla.border = '1';
+    tabla.cellPadding = '6';
+    tabla.style.borderCollapse = 'collapse';
+
+    const cabecera = añadir(tabla, 'tr');
+    ['Día', 'Fecha', 'Tipo de día', 'Transporte', 'Alojamiento', 'Gasto diario', 'Coste del día', 'Acumulado']
+        .forEach(t => añadir(cabecera, 'th', t));
+
+    calculo.filas.forEach(celdas => {
+        const tr = añadir(tabla, 'tr');
+        celdas.forEach(t => añadir(tr, 'td', t));
+    });
+}
